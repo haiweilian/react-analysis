@@ -4,7 +4,7 @@
 
 ### 体系进度
 
-- [ ] Didact
+- [x] Didact
 - [ ] React-Core
 - [ ] React-Router
 - [ ] React-Redux
