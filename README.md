@@ -1,6 +1,6 @@
 # react-analysis
 
-此项目是在研究 React17 体系的源码分析的总结记录(今年的次要目标，如果 Vue 体系没有新东西研究就研究 React 体系)。
+此项目是在研究 React18 体系的源码分析的总结记录。
 
 ### 体系进度
 
@@ -15,4 +15,4 @@
 
 [Didact](https://github.com/pomber/didact)
 
-[React 技术揭秘](https://github.com/BetaSu/just-react)
+[从 0 实现 React18](https://github.com/BetaSu/big-react)
