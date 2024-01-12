@@ -5,9 +5,8 @@
 ### 体系进度
 
 - [x] Didact
-- [ ] React-Core
-- [ ] React-Router
-- [ ] React-Redux
+- [ ] React
+- [ ] React-DOM
 
 ### 参考资料
 
