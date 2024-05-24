@@ -1,0 +1,51 @@
+name: Test Multiple Versions
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.2.0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # we don't have any other workflows to test build
+      - run: pnpm test:spec
+
+  test_matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        react:
+          - 18.0.0
+          - 18.1.0
+          - 18.2.0
+          - 19.0.0-rc-8f3c0525f9-20240521
+          - 0.0.0-experimental-8f3c0525f9-20240521
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8.2.0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+      - run: pnpm install --frozen-lockfile
+      - name: Test ${{ matrix.react }} ${{ matrix.devtools-skip }}
+        run: |
+          pnpm add -D react@${{ matrix.react }} react-dom@${{ matrix.react }}
+          pnpm test:spec
