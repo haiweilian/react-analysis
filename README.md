@@ -5,6 +5,7 @@
 ### 体系进度
 
 - [x] Didact
+- [x] Zustand
 - [ ] React
 - [ ] React-DOM
 
