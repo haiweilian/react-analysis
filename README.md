@@ -6,6 +6,7 @@
 
 - [x] Didact
 - [x] Zustand
+- [x] BigReact
 - [ ] React
 - [ ] React-DOM
 
@@ -16,3 +17,5 @@
 [Didact](https://github.com/pomber/didact)
 
 [从 0 实现 React18](https://github.com/BetaSu/big-react)
+
+[掘金 React 进阶文章](https://juejin.cn/collection/7372522544039641138)

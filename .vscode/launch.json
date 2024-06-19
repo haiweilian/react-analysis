@@ -26,5 +26,13 @@
         "/src/": "${workspaceFolder}/zustand-mini/src/"
       }
     },
+    {
+      "name": "BigReact",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "enableContentValidation": false,
+    },
   ]
 }
