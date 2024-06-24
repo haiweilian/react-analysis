@@ -1,3 +1,5 @@
+// REACT-Fiber 2.FiberNode 的节点类型
+// 根据节点类型来判断做具体的逻辑
 export type WorkTag =
 	| typeof FunctionComponent
 	| typeof HostRoot

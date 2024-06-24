@@ -1,3 +1,5 @@
+// REACT-Fiber 3.操作类型标记(修改/删除/插入)
+// https://juejin.cn/post/7217755581846962231?searchId=20240531132920605732829EBC807349F4
 export type Flags = number;
 
 export const NoFlags = 0b0000000;

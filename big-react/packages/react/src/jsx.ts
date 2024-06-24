@@ -8,7 +8,9 @@ import {
 	ElementType
 } from 'shared/ReactTypes';
 
-// ReactElement
+// REACT-JSX
+// react 是用 babel 转换 jsx 语法的 https://babeljs.io/repl#?browsers=defaults&build=&builtIns=false&corejs=3.6&spec=false&loose=false&code_lz=DwEwlgbgfAjHfAPTmgKCA&debug=false&forceAllTransforms=false&modules=false&shippedProposals=false&circleciRepo=&evaluate=false&fileSize=false&timeTravel=false&sourceType=module&lineWrap=true&presets=react&prettier=false&targets=&version=7.19.5&externalPlugins=&assumptions=%7B%7D
+// 转换后 `import { jsx as _jsx } from "react/jsx-runtime";` 导出 jsx 运行时，所以我们要实现这个运行时
 
 const ReactElement = function (
 	type: Type,

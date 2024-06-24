@@ -28,6 +28,9 @@ interface FiberDependencies<Value> {
 	lanes: Lanes;
 }
 
+// REACT-Fiber 1.FiberNode
+// 作为 React Element 和 真实 DOM 节点之间的桥梁，React 中虚拟 DOM 的实现
+// React Fiber 是使用链表形式来表示 DOM 树
 export class FiberNode {
 	type: any;
 	tag: WorkTag;
@@ -56,18 +59,16 @@ export class FiberNode {
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		// 实例
-		this.tag = tag;
-		this.key = key || null;
-		// HostComponent <div> div DOM
-		this.stateNode = null;
-		// FunctionComponent () => {}
-		this.type = null;
+		this.tag = tag; // 节点类型：WorkTag
+		this.key = key || null; // React Key
+		this.stateNode = null; // 真实 DOM 节点：<div></div>
+		this.type = null; // 创建 ReactElement 的类型：div / Child()
 
 		// 构成树状结构
-		this.return = null;
-		this.sibling = null;
-		this.child = null;
-		this.index = 0;
+		this.return = null; // 父节点
+		this.sibling = null; // 兄弟节点
+		this.child = null; // 子节点
+		this.index = 0; // 同级中的位置
 
 		this.ref = null;
 
@@ -77,14 +78,16 @@ export class FiberNode {
 		this.memoizedState = null;
 		this.updateQueue = null;
 
+		// 双缓存技术，在内存中构建的新 FiberNode
 		this.alternate = null;
-		// 副作用
-		this.flags = NoFlags;
-		this.subtreeFlags = NoFlags;
-		this.deletions = null;
 
-		this.lanes = NoLanes;
-		this.childLanes = NoLanes;
+		// 副作用
+		this.flags = NoFlags; // 是否更新
+		this.subtreeFlags = NoFlags; // 子树是否更新
+		this.deletions = null; // 是否包含删除
+
+		this.lanes = NoLanes; // 优先级
+		this.childLanes = NoLanes; // 子树优先级
 
 		this.dependencies = null;
 	}
@@ -95,6 +98,8 @@ export interface PendingPassiveEffects {
 	update: Effect[];
 }
 
+// REACT-Fiber 1.FiberRootNode
+// 整个 React 应用的根节点
 export class FiberRootNode {
 	container: Container;
 	current: FiberNode;
