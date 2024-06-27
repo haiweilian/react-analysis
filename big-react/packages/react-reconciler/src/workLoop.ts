@@ -74,12 +74,11 @@ const SuspendedOnDeprecatedThrowPromise = 4;
 let workInProgressSuspendedReason: SuspendedReason = NotSuspended;
 let workInProgressThrownValue: any = null;
 
-// TODO 执行过程中报错了
-
+// 初始化工作中的fiber
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
 	root.finishedLane = NoLane;
 	root.finishedWork = null;
-	workInProgress = createWorkInProgress(root.current, {});
+	workInProgress = createWorkInProgress(root.current, {}); // HostToot
 	wipRootRenderLane = lane;
 
 	workInProgressRootExitStatus = RootInProgress;
@@ -87,14 +86,16 @@ function prepareFreshStack(root: FiberRootNode, lane: Lane) {
 	workInProgressThrownValue = null;
 }
 
+// 调度执行
 export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
-	// fiberRootNode
+	// 找到根 FiberRootNode
 	const root = markUpdateLaneFromFiberToRoot(fiber, lane);
 	markRootUpdated(root, lane);
 	ensureRootIsScheduled(root);
 }
 
 // schedule阶段入口
+// 初始阶段可以不关注优先级的逻辑，只关注同步调度
 export function ensureRootIsScheduled(root: FiberRootNode) {
 	const updateLane = getNextLane(root);
 	const existingCallback = root.callbackNode;
@@ -128,9 +129,12 @@ export function ensureRootIsScheduled(root: FiberRootNode) {
 	}
 
 	if (updateLane === SyncLane) {
+		// REACT-初始化-2.1调度同步任务
 		// 同步优先级 用微任务调度
 		// [performSyncWorkOnRoot, performSyncWorkOnRoot, performSyncWorkOnRoot]
+		// 添加进同步队列 【performSyncWorkOnRoot 是渲染任务】
 		scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root, updateLane));
+		// 使用微任务调度执行
 		scheduleMicroTask(flushSyncCallbacks);
 	} else {
 		// 其他优先级 用宏任务调度
@@ -150,9 +154,10 @@ export function markRootUpdated(root: FiberRootNode, lane: Lane) {
 	root.pendingLanes = mergeLanes(root.pendingLanes, lane);
 }
 
+// 找到根 FiberRootNode
 export function markUpdateLaneFromFiberToRoot(fiber: FiberNode, lane: Lane) {
 	let node = fiber;
-	let parent = node.return;
+	let parent = node.return; // 一直往父级找
 	while (parent !== null) {
 		parent.childLanes = mergeLanes(parent.childLanes, lane);
 		const alternate = parent.alternate;
@@ -164,6 +169,7 @@ export function markUpdateLaneFromFiberToRoot(fiber: FiberNode, lane: Lane) {
 		parent = node.return;
 	}
 	if (node.tag === HostRoot) {
+		// HostRoot 的 stateNode 保存的是 FiberRootNode
 		return node.stateNode;
 	}
 	return null;
@@ -217,6 +223,7 @@ function performConcurrentWorkOnRoot(
 	}
 }
 
+// REACT-初始化-3 同步执行渲染
 function performSyncWorkOnRoot(root: FiberRootNode) {
 	const nextLane = getNextLane(root);
 
@@ -227,6 +234,7 @@ function performSyncWorkOnRoot(root: FiberRootNode) {
 		return;
 	}
 
+	// 渲染
 	const exitStatus = renderRoot(root, nextLane, false);
 
 	switch (exitStatus) {
@@ -252,6 +260,7 @@ function performSyncWorkOnRoot(root: FiberRootNode) {
 
 let c = 0;
 
+// REACT-初始化-3.1 从根节点开始渲染
 function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 	if (__DEV__) {
 		console.log(`开始${shouldTimeSlice ? '并发' : '同步'}更新`, root);
@@ -276,6 +285,7 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 				throwAndUnwindWorkLoop(root, workInProgress, thrownValue, lane);
 			}
 
+			// 开启一个工作循环，递归处理每个 Fiber Node
 			shouldTimeSlice ? workLoopConcurrent() : workLoopSync();
 			break;
 		} catch (e) {
@@ -306,6 +316,8 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 	return RootCompleted;
 }
 
+// REACT-初始化-6 提交 DomNode
+// 这一阶段会把 DOM 添加到浏览器中显示
 function commitRoot(root: FiberRootNode) {
 	const finishedWork = root.finishedWork;
 
@@ -353,6 +365,7 @@ function commitRoot(root: FiberRootNode) {
 	if (subtreeHasEffect || rootHasEffect) {
 		// beforeMutation
 		// mutation Placement
+		// REACT-初始化-6.1 提交变更
 		commitMutationEffects(finishedWork, root);
 
 		root.current = finishedWork;
@@ -388,17 +401,21 @@ function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
 	return didFlushPassiveEffect;
 }
 
+// 同步工作循环
 function workLoopSync() {
 	while (workInProgress !== null) {
 		performUnitOfWork(workInProgress);
 	}
 }
+
 function workLoopConcurrent() {
 	while (workInProgress !== null && !unstable_shouldYield()) {
 		performUnitOfWork(workInProgress);
 	}
 }
 
+// REACT-初始化-4 构建 FiberNode
+// 这一阶段会根据 ReactElement 创建 FiberNode，在 *递* 的过程中构建，从父到子
 function performUnitOfWork(fiber: FiberNode) {
 	const next = beginWork(fiber, wipRootRenderLane);
 	fiber.memoizedProps = fiber.pendingProps;
@@ -410,6 +427,8 @@ function performUnitOfWork(fiber: FiberNode) {
 	}
 }
 
+// REACT-初始化-5 构建 DomNode
+// 这一阶段会根据 FiberNode 创建 DomNode，在 *归* 的过程中构建，从子到父
 function completeUnitOfWork(fiber: FiberNode) {
 	let node: FiberNode | null = fiber;
 

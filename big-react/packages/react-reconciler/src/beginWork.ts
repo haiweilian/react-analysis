@@ -46,6 +46,7 @@ export function markWipReceivedUpdate() {
 }
 
 // 递归中的递阶段
+// 根据 ReactElement 生成对应的 FiberNode 树
 export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 	// bailout策略
 	didReceiveUpdate = false;
@@ -89,12 +90,17 @@ export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 	// 比较，返回子fiberNode
 	switch (wip.tag) {
 		case HostRoot:
+			// REACT-初始化-4.1 构建 HostRoot
 			return updateHostRoot(wip, renderLane);
 		case HostComponent:
+			// REACT-初始化-4.3 构建 HostComponent(div)
 			return updateHostComponent(wip);
 		case HostText:
+			// REACT-初始化-4.3 构建 HostText('123')
+			// 如果是 HostText 文本节点结束
 			return null;
 		case FunctionComponent:
+			// REACT-初始化-4.2 构建 FunctionComponent(App)
 			return updateFunctionComponent(wip, wip.type, renderLane);
 		case Fragment:
 			return updateFragment(wip);
@@ -214,6 +220,7 @@ function updateFragment(wip: FiberNode) {
 	return wip.child;
 }
 
+// 处理 FunctionComponent FiberNode 节点; 执行函数组件和 Hooks，返回子节点如: FiberNode { type: 'ul' }
 function updateFunctionComponent(
 	wip: FiberNode,
 	Component: FiberNode['type'],
@@ -233,6 +240,7 @@ function updateFunctionComponent(
 	return wip.child;
 }
 
+// 处理 HostRoot FiberNode 节点;  返回子节点如: FiberNode { type: App() }
 function updateHostRoot(wip: FiberNode, renderLane: Lane) {
 	const baseState = wip.memoizedState;
 	const updateQueue = wip.updateQueue as UpdateQueue<Element>;
@@ -241,6 +249,7 @@ function updateHostRoot(wip: FiberNode, renderLane: Lane) {
 
 	const prevChildren = wip.memoizedState;
 
+	// 获取到 ReactElemen App()
 	const { memoizedState } = processUpdateQueue(baseState, pending, renderLane);
 	wip.memoizedState = memoizedState;
 
@@ -260,6 +269,7 @@ function updateHostRoot(wip: FiberNode, renderLane: Lane) {
 	return wip.child;
 }
 
+// 处理 HostComponent FiberNode 节点;  返回子节点如: FiberNode { type: 'li' }
 function updateHostComponent(wip: FiberNode) {
 	const nextProps = wip.pendingProps;
 	const nextChildren = nextProps.children;
@@ -268,6 +278,7 @@ function updateHostComponent(wip: FiberNode) {
 	return wip.child;
 }
 
+// 协调子节点，根据 Element 生成对应的 FiberNode
 function reconcileChildren(wip: FiberNode, children?: ReactElementType) {
 	const current = wip.alternate;
 

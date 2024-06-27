@@ -30,14 +30,15 @@ function markRef(fiber: FiberNode) {
 	fiber.flags |= Ref;
 }
 
+// 递归中的归阶段
+// 根据 fiber 构建 DOM
 export const completeWork = (wip: FiberNode) => {
-	// 递归中的归
-
 	const newProps = wip.pendingProps;
 	const current = wip.alternate;
 
 	switch (wip.tag) {
 		case HostComponent:
+			// REACT-初始化-5.2 HostComponent
 			if (current !== null && wip.stateNode) {
 				// TODO update
 				// 1. props是否变化 {onClick: xx} {onClick: xxx}
@@ -64,6 +65,7 @@ export const completeWork = (wip: FiberNode) => {
 			bubbleProperties(wip);
 			return null;
 		case HostText:
+			// REACT-初始化-5.1 HostText
 			if (current !== null && wip.stateNode) {
 				// update
 				const oldText = current.memoizedProps?.content;
@@ -83,6 +85,7 @@ export const completeWork = (wip: FiberNode) => {
 		case Fragment:
 		case OffscreenComponent:
 		case MemoComponent:
+			// -5.3 HostRoot/FunctionComponent
 			bubbleProperties(wip);
 			return null;
 		case ContextProvider:

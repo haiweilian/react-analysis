@@ -88,6 +88,7 @@ export function renderWithHooks(
 
 	const props = wip.pendingProps;
 	// FC render
+	// REACT-初始化-4.2.1 执行 FunctionComponent
 	const children = Component(props);
 
 	// 重置操作

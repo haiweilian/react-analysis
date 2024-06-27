@@ -118,7 +118,7 @@ export class FiberRootNode {
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
-		hostRootFiber.stateNode = this;
+		hostRootFiber.stateNode = this; // HostRoot 的 stateNode 保存的是 FiberRootNode
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
 		this.suspendedLanes = NoLanes;
@@ -178,6 +178,7 @@ export const createWorkInProgress = (
 	return wip;
 };
 
+// 根据 Element 创建 FiberNode
 export function createFiberFromElement(element: ReactElementType): FiberNode {
 	const { type, key, props, ref } = element;
 	let fiberTag: WorkTag = FunctionComponent;

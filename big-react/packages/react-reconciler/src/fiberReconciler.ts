@@ -15,6 +15,7 @@ import {
 import { scheduleUpdateOnFiber } from './workLoop';
 import { HostRoot } from './workTags';
 
+// 创建
 export function createContainer(container: Container) {
 	const hostRootFiber = new FiberNode(HostRoot, {}, null);
 	const root = new FiberRootNode(container, hostRootFiber);
@@ -22,6 +23,7 @@ export function createContainer(container: Container) {
 	return root;
 }
 
+// 更新
 export function updateContainer(
 	element: ReactElementType | null,
 	root: FiberRootNode
@@ -29,6 +31,7 @@ export function updateContainer(
 	unstable_runWithPriority(unstable_ImmediatePriority, () => {
 		const hostRootFiber = root.current;
 		const lane = requestUpdateLane();
+		// 把 element 存储在了 hostRootFiber updateQueue 上
 		const update = createUpdate<ReactElementType | null>(element, lane);
 		enqueueUpdate(
 			hostRootFiber.updateQueue as UpdateQueue<ReactElementType | null>,
@@ -36,6 +39,7 @@ export function updateContainer(
 			hostRootFiber,
 			lane
 		);
+		// REACT-初始化-2.调度执行
 		scheduleUpdateOnFiber(hostRootFiber, lane);
 	});
 	return element;
