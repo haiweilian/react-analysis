@@ -18,6 +18,7 @@ export interface UpdateQueue<State> {
 	dispatch: Dispatch<State> | null;
 }
 
+// 创建更新
 export const createUpdate = <State>(
 	action: Action<State>,
 	lane: Lane,
@@ -33,6 +34,7 @@ export const createUpdate = <State>(
 	};
 };
 
+// 创建更新队列
 export const createUpdateQueue = <State>() => {
 	return {
 		shared: {
@@ -42,6 +44,7 @@ export const createUpdateQueue = <State>() => {
 	} as UpdateQueue<State>;
 };
 
+// 添加更新队列，形成一个链表
 export const enqueueUpdate = <State>(
 	updateQueue: UpdateQueue<State>,
 	update: Update<State>,
@@ -80,6 +83,7 @@ export function basicStateReducer<State>(
 	}
 }
 
+// 消费更新队列
 export const processUpdateQueue = <State>(
 	baseState: State,
 	pendingUpdate: Update<State> | null,

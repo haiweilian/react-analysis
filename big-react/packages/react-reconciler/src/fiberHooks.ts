@@ -78,6 +78,9 @@ export function renderWithHooks(
 
 	const current = wip.alternate;
 
+	// REACT-Hooks 3.挂载Hooks函数
+	// 在执行函数组件时，根据初始还是更新存储不同的 hooks 函数，
+	// 我们实际使用 hooks 时，实际也就是执行内部的函数，它们会执行并保存状态。
 	if (current !== null) {
 		// update
 		currentDispatcher.current = HooksDispatcherOnUpdate;
@@ -217,6 +220,7 @@ function createFCUpdateQueue<State>() {
 	return updateQueue;
 }
 
+// REACT-useState 2.updateState
 function updateState<State>(): [State, Dispatch<State>] {
 	// 找到当前useState对应的hook数据
 	const hook = updateWorkInProgressHook();
@@ -279,9 +283,11 @@ function updateState<State>(): [State, Dispatch<State>] {
 		queue.lastRenderedState = memoizedState;
 	}
 
+	// 返回新值和更新函数
 	return [hook.memoizedState, queue.dispatch as Dispatch<State>];
 }
 
+// 在更新阶段取 hooks 也是按链表一个一个取的，这也就是 hook 为什么只能在组件和组件顶层使用
 function updateWorkInProgressHook(): Hook {
 	// TODO render阶段触发的更新
 	let nextCurrentHook: Hook | null;
@@ -332,26 +338,33 @@ function updateWorkInProgressHook(): Hook {
 	return workInProgressHook;
 }
 
+// REACT-useState 1.mountState
+// [num, dispatch] = useState(0) 当 useState 时实际返回了一个数组，包含初始值和更新函数
 function mountState<State>(
 	initialState: (() => State) | State
 ): [State, Dispatch<State>] {
 	// 找到当前useState对应的hook数据
 	const hook = mountWorkInProgressHook();
+	// 初始值是否是函数，函数则立即执行
 	let memoizedState;
 	if (initialState instanceof Function) {
 		memoizedState = initialState();
 	} else {
 		memoizedState = initialState;
 	}
+
+	// 创建一个更新队列，更新 hooks 会从中取值
 	const queue = createFCUpdateQueue<State>();
 	hook.updateQueue = queue;
 	hook.memoizedState = memoizedState;
 	hook.baseState = memoizedState;
 
+	// 返回一个用于修改 hook 值的函数
 	// @ts-ignore
 	const dispatch = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
 	queue.dispatch = dispatch;
 	queue.lastRenderedState = memoizedState;
+	// 返回初始值和更新函数
 	return [memoizedState, dispatch];
 }
 
@@ -393,6 +406,8 @@ function startTransition(setPending: Dispatch<boolean>, callback: () => void) {
 	currentBatchConfig.transition = prevTransition;
 }
 
+// REACT-useState 1.2 触发更新
+// 当调用 dispath 时，触发更新会从新调用 scheduleUpdateOnFiber 调度更新
 function dispatchSetState<State>(
 	fiber: FiberNode,
 	updateQueue: FCUpdateQueue<State>,
@@ -429,6 +444,7 @@ function dispatchSetState<State>(
 	scheduleUpdateOnFiber(fiber, lane);
 }
 
+// 挂载时会创建一个 hook，如果有多个会形成链表，并挂载当前组件 fiberNode 上，这也就是 hook 为什么只能在组件和组件顶层使用
 function mountWorkInProgressHook(): Hook {
 	const hook: Hook = {
 		memoizedState: null,

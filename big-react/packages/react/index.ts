@@ -52,6 +52,7 @@ export const useCallback: Dispatcher['useCallback'] = (callback, deps) => {
 	return dispatcher.useCallback(callback, deps);
 };
 
+// REACT-Hooks 2.共享层
 // 内部数据共享层
 export const __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {
 	currentDispatcher,

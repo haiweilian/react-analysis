@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
+// function App() {
+// 	return (
+// 		<ul>
+// 			<li>1</li>
+// 			<li>2</li>
+// 		</ul>
+// 	);
+// }
+
 function App() {
+	const [num, update] = useState(100);
+	const [num1, update1] = useState(100);
 	return (
 		<ul>
-			<li>1</li>
-			<li>2</li>
+			<li onClick={() => update(50)}>{num}</li>
+			<li onClick={() => update1(50)}>{num1}</li>
 		</ul>
 	);
 }

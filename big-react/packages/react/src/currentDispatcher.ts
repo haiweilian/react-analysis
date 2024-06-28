@@ -14,6 +14,7 @@ export interface Dispatcher {
 
 export type Dispatch<State> = (action: Action<State>) => void;
 
+// REACT-Hooks 1.上下文
 const currentDispatcher: { current: Dispatcher | null } = {
 	current: null
 };
