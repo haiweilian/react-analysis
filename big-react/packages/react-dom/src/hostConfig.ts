@@ -11,6 +11,8 @@ export type TextInstance = Text;
 export const createInstance = (type: string, props: Props): Instance => {
 	// TODO 处理props
 	const element = document.createElement(type) as unknown;
+	// REACT-合成事件 1.存储信息
+	// 创建元素节点时会把 props 信息存储到 element 上，以便后续可以通过 dom 获取到 props
 	updateFiberProps(element as DOMElement, props);
 	return element as DOMElement;
 };
