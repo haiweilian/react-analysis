@@ -10,9 +10,34 @@ import ReactDOM from 'react-dom';
 // 	);
 // }
 
+// function App() {
+// 	const [num, update] = useState(100);
+// 	const [num1, update1] = useState(100);
+// 	return (
+// 		<ul>
+// 			<li onClick={() => update(50)}>{num}</li>
+// 			<li onClick={() => update1(50)}>{num1}</li>
+// 		</ul>
+// 	);
+// }
+
 function App() {
 	const [num, update] = useState(100);
+	useEffect(() => {
+		console.log('mount', num);
+		return () => {
+			console.log('unmount', num);
+		};
+	}, [num]);
+
 	const [num1, update1] = useState(100);
+	useEffect(() => {
+		console.log('mount1', num1);
+		return () => {
+			console.log('unmount1', num1);
+		};
+	}, [num1]);
+
 	return (
 		<ul>
 			<li onClick={() => update(50)}>{num}</li>

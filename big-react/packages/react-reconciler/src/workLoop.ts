@@ -1,8 +1,7 @@
 import { scheduleMicroTask } from 'hostConfig';
 import { beginWork } from './beginWork';
-import {
+import commitHookEffectListDestroy, {
 	commitHookEffectListCreate,
-	commitHookEffectListDestroy,
 	commitHookEffectListUnmount,
 	commitLayoutEffects,
 	commitMutationEffects
@@ -348,7 +347,7 @@ function commitRoot(root: FiberRootNode) {
 			rootDoesHasPassiveEffects = true;
 			// 调度副作用
 			scheduleCallback(NormalPriority, () => {
-				// 执行副作用
+				// REACT-useEffect 3. 执行副作用
 				flushPassiveEffects(root.pendingPassiveEffects);
 				return;
 			});
@@ -380,18 +379,23 @@ function commitRoot(root: FiberRootNode) {
 	ensureRootIsScheduled(root);
 }
 
+// 执行副作用
 function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
 	let didFlushPassiveEffect = false;
+	// 组件卸载执行销毁函数
 	pendingPassiveEffects.unmount.forEach((effect) => {
 		didFlushPassiveEffect = true;
 		commitHookEffectListUnmount(Passive, effect);
 	});
 	pendingPassiveEffects.unmount = [];
 
+	// 组件更新执行销毁函数
 	pendingPassiveEffects.update.forEach((effect) => {
 		didFlushPassiveEffect = true;
 		commitHookEffectListDestroy(Passive | HookHasEffect, effect);
 	});
+
+	// 组件创建执行创建函数，创建函数执行后返回销毁函数
 	pendingPassiveEffects.update.forEach((effect) => {
 		didFlushPassiveEffect = true;
 		commitHookEffectListCreate(Passive | HookHasEffect, effect);

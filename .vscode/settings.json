@@ -7,6 +7,7 @@
     "REACT-初始化",
     "REACT-Hooks",
     "REACT-useState",
-    "REACT-合成事件"
+    "REACT-合成事件",
+    "REACT-useEffect",
   ]
 }

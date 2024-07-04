@@ -124,7 +124,10 @@ const HooksDispatcherOnUpdate: Dispatcher = {
 	useCallback: updateCallback
 };
 
+// REACT-useEffect 1.mountEffect 存储 useEffect
+// 存储的 useEffect 并不是直接执行了，而是需要在提交阶段判断是否需要执行和销毁
 function mountEffect(create: EffectCallback | void, deps: HookDeps | void) {
+	// 找到当前useEffect对应的hook数据
 	const hook = mountWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
 	(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
@@ -137,6 +140,7 @@ function mountEffect(create: EffectCallback | void, deps: HookDeps | void) {
 	);
 }
 
+// REACT-useEffect 4. updateEffect
 function updateEffect(create: EffectCallback | void, deps: HookDeps | void) {
 	const hook = updateWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
@@ -147,14 +151,14 @@ function updateEffect(create: EffectCallback | void, deps: HookDeps | void) {
 		destroy = prevEffect.destroy;
 
 		if (nextDeps !== null) {
-			// 浅比较依赖
+			// 浅比较依赖相等，不重新执行
 			const prevDeps = prevEffect.deps;
 			if (areHookInputsEqual(nextDeps, prevDeps)) {
 				hook.memoizedState = pushEffect(Passive, create, destroy, nextDeps);
 				return;
 			}
 		}
-		// 浅比较 不相等
+		// 浅比较 不相等，重新执行
 		(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
 		hook.memoizedState = pushEffect(
 			Passive | HookHasEffect,
@@ -178,6 +182,7 @@ function areHookInputsEqual(nextDeps: HookDeps, prevDeps: HookDeps) {
 	return true;
 }
 
+// 添加 useEffect
 function pushEffect(
 	hookFlags: Flags,
 	create: EffectCallback | void,
@@ -193,13 +198,14 @@ function pushEffect(
 	};
 	const fiber = currentlyRenderingFiber as FiberNode;
 	const updateQueue = fiber.updateQueue as FCUpdateQueue<any>;
+	// 如果是第一个 useEffect 额外存储在 updateQueue 上
 	if (updateQueue === null) {
 		const updateQueue = createFCUpdateQueue();
 		fiber.updateQueue = updateQueue;
 		effect.next = effect;
 		updateQueue.lastEffect = effect;
 	} else {
-		// 插入effect
+		// 插入effect，形成环形链表，lastEffect.next 就是第一个 useEffect
 		const lastEffect = updateQueue.lastEffect;
 		if (lastEffect === null) {
 			effect.next = effect;

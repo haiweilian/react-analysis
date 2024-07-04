@@ -91,7 +91,7 @@ const commitMutationEffectsOnFiber = (
 		finishedWork.flags &= ~ChildDeletion;
 	}
 	if ((flags & PassiveEffect) !== NoFlags) {
-		// 收集回调
+		// REACT-useEffect 2.更新阶段收集回调
 		commitPassiveEffect(finishedWork, root, 'update');
 		finishedWork.flags &= ~PassiveEffect;
 	}
@@ -271,6 +271,7 @@ function gethostSibling(fiber: FiberNode) {
 	}
 }
 
+// 收集所有的effect，别别存储在 mount 和 unmount 对象里
 function commitPassiveEffect(
 	fiber: FiberNode,
 	root: FiberRootNode,
@@ -292,6 +293,7 @@ function commitPassiveEffect(
 	}
 }
 
+// 递归列表，执行回调
 function commitHookEffectList(
 	flags: Flags,
 	lastEffect: Effect,
@@ -300,6 +302,7 @@ function commitHookEffectList(
 	let effect = lastEffect.next as Effect;
 
 	do {
+		// 根据标记判断是否执行
 		if ((effect.tag & flags) === flags) {
 			callback(effect);
 		}
@@ -307,6 +310,7 @@ function commitHookEffectList(
 	} while (effect !== lastEffect.next);
 }
 
+// 组件卸载执行销毁函数
 export function commitHookEffectListUnmount(flags: Flags, lastEffect: Effect) {
 	commitHookEffectList(flags, lastEffect, (effect) => {
 		const destroy = effect.destroy;
@@ -317,7 +321,8 @@ export function commitHookEffectListUnmount(flags: Flags, lastEffect: Effect) {
 	});
 }
 
-export function commitHookEffectListDestroy(flags: Flags, lastEffect: Effect) {
+// 组件更新执行销毁函数
+export default function commitHookEffectListDestroy(flags: Flags, lastEffect: Effect) {
 	commitHookEffectList(flags, lastEffect, (effect) => {
 		const destroy = effect.destroy;
 		if (typeof destroy === 'function') {
@@ -326,10 +331,12 @@ export function commitHookEffectListDestroy(flags: Flags, lastEffect: Effect) {
 	});
 }
 
+// 组件创建执行创建函数，创建函数执行后返回销毁函数
 export function commitHookEffectListCreate(flags: Flags, lastEffect: Effect) {
 	commitHookEffectList(flags, lastEffect, (effect) => {
 		const create = effect.create;
 		if (typeof create === 'function') {
+			// 保存销毁函数
 			effect.destroy = create();
 		}
 	});
@@ -371,6 +378,7 @@ function commitDeletion(childToDelete: FiberNode, root: FiberRootNode) {
 				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
 				return;
 			case FunctionComponent:
+				// REACT-useEffect 2.卸载阶段收集回调
 				commitPassiveEffect(unmountFiber, root, 'unmount');
 				return;
 			default:
