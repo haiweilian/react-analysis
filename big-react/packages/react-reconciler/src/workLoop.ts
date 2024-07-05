@@ -136,9 +136,12 @@ export function ensureRootIsScheduled(root: FiberRootNode) {
 		// 使用微任务调度执行
 		scheduleMicroTask(flushSyncCallbacks);
 	} else {
+		// REACT-并发更新 1.并发更新调度
 		// 其他优先级 用宏任务调度
+		// 获取优先级
 		const schedulerPriority = lanesToSchedulerPriority(updateLane);
 
+		// 添加调度任务
 		newCallbackNode = scheduleCallback(
 			schedulerPriority,
 			// @ts-ignore
@@ -174,6 +177,7 @@ export function markUpdateLaneFromFiberToRoot(fiber: FiberNode, lane: Lane) {
 	return null;
 }
 
+// REACT-并发更新 2.并发执行渲染
 function performConcurrentWorkOnRoot(
 	root: FiberRootNode,
 	didTimeout: boolean
@@ -194,14 +198,16 @@ function performConcurrentWorkOnRoot(
 	}
 	const needSync = lane === SyncLane || didTimeout;
 	// render阶段
+	// 是否启用并发更新，非同步并且没有超时
 	const exitStatus = renderRoot(root, lane, !needSync);
 
 	switch (exitStatus) {
-		// 中断
+		// 中断执行标识
 		case RootInComplete:
 			if (root.callbackNode !== curCallbackNode) {
 				return null;
 			}
+			// 返回函数，调度器将继续执行回调
 			return performConcurrentWorkOnRoot.bind(null, root);
 		case RootCompleted:
 			const finishedWork = root.current.alternate;
@@ -284,6 +290,7 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 				throwAndUnwindWorkLoop(root, workInProgress, thrownValue, lane);
 			}
 
+			// REACT-并发更新 3.并发执行工作渲染
 			// 开启一个工作循环，递归处理每个 Fiber Node
 			shouldTimeSlice ? workLoopConcurrent() : workLoopSync();
 			break;
@@ -304,7 +311,7 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 		return workInProgressRootExitStatus;
 	}
 
-	// 中断执行
+	// 中断执行，如果还有剩余任务就是中断执行了返回中断标识
 	if (shouldTimeSlice && workInProgress !== null) {
 		return RootInComplete;
 	}
@@ -412,7 +419,9 @@ function workLoopSync() {
 	}
 }
 
+// 并发执行工作循环
 function workLoopConcurrent() {
+	// 如果还有空闲时间就一直执行
 	while (workInProgress !== null && !unstable_shouldYield()) {
 		performUnitOfWork(workInProgress);
 	}

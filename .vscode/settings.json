@@ -9,5 +9,6 @@
     "REACT-useState",
     "REACT-合成事件",
     "REACT-useEffect",
+    "REACT-并发更新",
   ]
 }
