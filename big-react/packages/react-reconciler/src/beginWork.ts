@@ -105,6 +105,7 @@ export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 		case Fragment:
 			return updateFragment(wip);
 		case ContextProvider:
+			// REACT-Context 2 构建 ContextProvider 递过程
 			return updateContextProvider(wip, renderLane);
 		case SuspenseComponent:
 			return updateSuspenseComponent(wip);
@@ -187,13 +188,15 @@ function checkScheduledUpdateOrContext(
 	return false;
 }
 
+// 处理 ContextProvider FiberNode 节点，记录 value 值
 function updateContextProvider(wip: FiberNode, renderLane: Lane) {
 	const providerType = wip.type;
 	const context = providerType._context;
 	const newProps = wip.pendingProps;
 	const oldProps = wip.memoizedProps;
-	const newValue = newProps.value;
+	const newValue = newProps.value; // 从 props 中获取 value
 
+	// begin 阶段入栈
 	pushProvider(context, newValue);
 
 	if (oldProps !== null) {

@@ -89,6 +89,8 @@ export const completeWork = (wip: FiberNode) => {
 			bubbleProperties(wip);
 			return null;
 		case ContextProvider:
+			// REACT-Context 3 构建 ContextProvider 归过程
+			// complete 阶段出栈
 			const context = wip.type._context;
 			popProvider(context);
 			bubbleProperties(wip);

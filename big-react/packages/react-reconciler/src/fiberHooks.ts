@@ -35,6 +35,7 @@ let renderLane: Lane = NoLane;
 
 const { currentDispatcher, currentBatchConfig } = internals;
 
+// REACT-Context 5. 读取 Context 值
 function readContext<Value>(context: ReactContext<Value>): Value {
 	const consumer = currentlyRenderingFiber as FiberNode;
 	return readContextOrigin(consumer, context);
