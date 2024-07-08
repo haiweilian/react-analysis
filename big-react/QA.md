@@ -56,3 +56,11 @@ function performConcurrentWorkOnRoot() {
 
 - 任务只会在 begin 和 complete 阶段被中断，commit 阶段不会中断。
 - 当开始构建时会往调度器里添加回调，调度器会在空闲时执行回调。回调执行过程中会判断是否还有空闲时间，如果没有空闲时间则中断执行，继续添加下一个任务，调度器会在下一个空闲时继续调用，直到完毕。
+
+# React useTransition 的原理和作用
+
+useTransition 在不阻塞 UI 的情况下更新状态的 Hook.
+
+实现原理：
+
+在执行 startTransition 会标记状态，在获取优先级的时候会根据状态判断是否在 startTransition 中执行，使 在 startTransition 的更新都变成优先级比较低的并发更新。

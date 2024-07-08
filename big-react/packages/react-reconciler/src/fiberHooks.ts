@@ -374,16 +374,23 @@ function mountState<State>(
 	return [memoizedState, dispatch];
 }
 
+// REACT-useTransition 1.mountTransition
 function mountTransition(): [boolean, (callback: () => void) => void] {
+	// 加载状态
 	const [isPending, setPending] = mountState(false);
+	// 获取当前 hooks
 	const hook = mountWorkInProgressHook();
+	// 执行函数
 	const start = startTransition.bind(null, setPending);
 	hook.memoizedState = start;
 	return [isPending, start];
 }
 
+// REACT-useTransition 2.updateTransition
 function updateTransition(): [boolean, (callback: () => void) => void] {
+	// 加载状态
 	const [isPending] = updateState();
+	// 获取当前 hooks
 	const hook = updateWorkInProgressHook();
 	const start = hook.memoizedState;
 	return [isPending as boolean, start];
@@ -401,14 +408,19 @@ function updateRef<T>(initialValue: T): { current: T } {
 	return hook.memoizedState;
 }
 
+// REACT-useTransition 3.startTransition 执行
 function startTransition(setPending: Dispatch<boolean>, callback: () => void) {
+	// 同步改变状态
 	setPending(true);
 	const prevTransition = currentBatchConfig.transition;
+	// 修改 startTransition 执行时的优先级
 	currentBatchConfig.transition = 1;
 
+	// 执行回调，此时优先级已经改变
 	callback();
 	setPending(false);
 
+	// 恢复优先级
 	currentBatchConfig.transition = prevTransition;
 }
 

@@ -24,6 +24,8 @@ export function mergeLanes(laneA: Lane, laneB: Lane): Lanes {
 }
 
 export function requestUpdateLane() {
+	// REACT-useTransition 3.1 获取 transition 优先级
+	// 因为 transition 不是同步优先级会启用并发更新，并且优先级比较低所以不会阻塞渲染和优先级高的任务
 	const isTransition = ReactCurrentBatchConfig.transition !== null;
 	if (isTransition) {
 		return TransitionLane;
