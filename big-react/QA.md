@@ -64,3 +64,16 @@ useTransition 在不阻塞 UI 的情况下更新状态的 Hook.
 实现原理：
 
 在执行 startTransition 会标记状态，在获取优先级的时候会根据状态判断是否在 startTransition 中执行，使 在 startTransition 的更新都变成优先级比较低的并发更新。
+
+# React bailout 优化策略
+
+https://juejin.cn/post/7214053344808976443?searchId=202407090900111F19FEE0890842525721
+
+命中 bailout 策略的组件可以不通过 reconcile​ 生成 wip.child ​，而是直接复用上次更新生成的 wip.child​。
+
+​bailout 策略存在于 beginWork 中 ​bailout 四要素：
+
+- ​props​ 不变; 比较 props​ 变化是通过 「全等比较」，使用 React.memo​ 后会变为「浅比较」
+- ​type​ 不变;
+- state​ 不变;
+- ​context​ 不变;

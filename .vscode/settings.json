@@ -12,5 +12,6 @@
     "REACT-并发更新",
     "REACT-useTransition",
     "REACT-Context",
+    "REACT-bailout",
   ]
 }

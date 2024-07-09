@@ -52,12 +52,14 @@ export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 	didReceiveUpdate = false;
 	const current = wip.alternate;
 
+	// REACT-bailout 1. 创建组件时
 	if (current !== null) {
 		const oldProps = current.memoizedProps;
 		const newProps = wip.pendingProps;
 		// 四要素～ props type
 		// {num: 0, name: 'cpn2'}
 		// {num: 0, name: 'cpn2'}
+		// 一个组件每次创建 props 都不会相同，需要父节点命中 bailout策略去复用子 fiberNode 或使用缓存 useMemo 存储组件
 		if (oldProps !== newProps || current.type !== wip.type) {
 			didReceiveUpdate = true;
 		} else {
@@ -142,6 +144,8 @@ function updateMemoComponent(wip: FiberNode, renderLane: Lane) {
 	const nextProps = wip.pendingProps;
 	const Component = wip.type.type;
 
+	// REACT-bailout 2. 使用React.memo时
+	// 这时就可以浅比较 props 达到复用，浅比较可以内存地址不一样值一样就可以
 	if (current !== null) {
 		const prevProps = current.memoizedProps;
 
@@ -161,6 +165,7 @@ function updateMemoComponent(wip: FiberNode, renderLane: Lane) {
 	return updateFunctionComponent(wip, Component, renderLane);
 }
 
+// 命中 bailout 策略复用子树
 function bailoutOnAlreadyFinishedWork(wip: FiberNode, renderLane: Lane) {
 	if (!includeSomeLanes(wip.childLanes, renderLane)) {
 		if (__DEV__) {
@@ -172,6 +177,7 @@ function bailoutOnAlreadyFinishedWork(wip: FiberNode, renderLane: Lane) {
 	if (__DEV__) {
 		console.warn('bailout一个fiber', wip);
 	}
+	// 克隆
 	cloneChildFibers(wip);
 	return wip.child;
 }

@@ -397,15 +397,19 @@ function updateTransition(): [boolean, (callback: () => void) => void] {
 	return [isPending as boolean, start];
 }
 
+// REACT-useRef 1.mountRef
 function mountRef<T>(initialValue: T): { current: T } {
 	const hook = mountWorkInProgressHook();
+	// 存储值
 	const ref = { current: initialValue };
 	hook.memoizedState = ref;
 	return ref;
 }
 
+// REACT-useRef 2.updateRef
 function updateRef<T>(initialValue: T): { current: T } {
 	const hook = updateWorkInProgressHook();
+	// 取值返回
 	return hook.memoizedState;
 }
 
@@ -515,18 +519,22 @@ export function bailoutHook(wip: FiberNode, renderLane: Lane) {
 	current.lanes = removeLanes(current.lanes, renderLane);
 }
 
+// REACT-useCallback 1.mountCallback
 function mountCallback<T>(callback: T, deps: HookDeps | undefined) {
 	const hook = mountWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
+	// 把回调和依赖存储
 	hook.memoizedState = [callback, nextDeps];
 	return callback;
 }
 
+// REACT-useCallback 2.updateCallback
 function updateCallback<T>(callback: T, deps: HookDeps | undefined) {
 	const hook = updateWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
 	const prevState = hook.memoizedState;
 
+	// 如果依赖不变，直接返回存储的 callback
 	if (nextDeps !== null) {
 		const prevDeps = prevState[1];
 		if (areHookInputsEqual(nextDeps, prevDeps)) {
@@ -537,25 +545,31 @@ function updateCallback<T>(callback: T, deps: HookDeps | undefined) {
 	return callback;
 }
 
+// REACT-useMemo 1.mountMemo
 function mountMemo<T>(nextCreate: () => T, deps: HookDeps | undefined) {
 	const hook = mountWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
+	// 执行计算函数
 	const nextValue = nextCreate();
 	hook.memoizedState = [nextValue, nextDeps];
 	return nextValue;
 }
 
+// REACT-useMemo 2.updateMemo
 function updateMemo<T>(nextCreate: () => T, deps: HookDeps | undefined) {
 	const hook = updateWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
 	const prevState = hook.memoizedState;
 
+	// 如果依赖不变直接返回存储的结果
 	if (nextDeps !== null) {
 		const prevDeps = prevState[1];
 		if (areHookInputsEqual(nextDeps, prevDeps)) {
 			return prevState[0];
 		}
 	}
+
+	// 反之重新执行
 	const nextValue = nextCreate();
 	hook.memoizedState = [nextValue, nextDeps];
 	return nextValue;
